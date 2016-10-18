@@ -1,0 +1,19 @@
+{
+  "name": "express-query",
+  "version": "1.0.0",
+  "description": "快递查询应用",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.mail.netease.com:gzyuboxian/express-query.git"
+  },
+  "keywords": [
+    "express",
+    "query"
+  ],
+  "author": "Bob",
+  "license": "MIT"
+}
