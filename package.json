@@ -4,11 +4,11 @@
   "description": "快递查询应用",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    
   },
   "repository": {
     "type": "git",
-    "url": "git@git.mail.netease.com:gzyuboxian/express-query.git"
+    "url": "git@github.com:bobsam813/express-query.git"
   },
   "keywords": [
     "express",
