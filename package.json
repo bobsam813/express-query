@@ -4,7 +4,7 @@
   "description": "快递查询应用",
   "main": "app.js",
   "scripts": {
-    "start": "electron ./src/app.js"
+    "start": "electron ./src/main.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,8 @@
   "author": "Bob",
   "license": "MIT",
   "dependencies": {
-    "electron": "^1.4.3"
+    "electron": "^1.4.3",
+    "vue": "^2.0.3",
+    "webpack": "^1.13.2"
   }
 }

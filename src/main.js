@@ -10,15 +10,8 @@ function createWindow() {
   	// 加载应用的 index.html。
   	mainWindow.loadURL(`file://${__dirname}/index.html`);
 
-  	dialog.showMessageBox(mainWindow, {
-  		type: 'warning',
-  		title: '呵呵弹窗',
-  		message: '弹窗内容',
-  		buttons: ['确定', '取消']
-  	})
-
   	// 启用开发工具。
-  	// mainWindow.webContents.openDevTools();
+  	mainWindow.webContents.openDevTools();
 
   	// 当 window 被关闭，这个事件会被触发。
   	mainWindow.on('closed', () => {
