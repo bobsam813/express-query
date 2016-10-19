@@ -4,7 +4,7 @@
   "description": "快递查询应用",
   "main": "app.js",
   "scripts": {
-    
+    "start": "electron ./src/app.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,8 @@
     "query"
   ],
   "author": "Bob",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^1.4.3"
+  }
 }
