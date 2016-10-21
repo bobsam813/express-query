@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "electron .",
     "build": "webpack --color --progress",
-    "start": "npm run build | npm run dev"
+    "watch": "webpack --watch",
+    "start": "npm run watch | npm run dev"
   },
   "repository": {
     "type": "git",
