@@ -1,3 +1,5 @@
+import * as Utils from '../common/utils';
+
 const http = require('http');
 const crypto = require('crypto');
 const url = require('url');
@@ -12,22 +14,6 @@ module.exports = {
 	request: request,
 	getLogisticsMsg: getLogisticsMsg
 };
-
-function md5(str){
-	if(str){
-		return crypto.createHash('md5').update(str).digest('hex');
-	}else{
-		return '';
-	}
-}
-
-function base64(str){
-	if(str){
-		return new Buffer(str, 'utf8').toString('base64');
-	}else{
-		return '';
-	}
-}
 
 function request(config){
 	let that = this;
@@ -77,8 +63,8 @@ function getLogisticsMsg(config){
 	const sApi = 'http://api.kdniao.cc/Ebusiness/EbusinessOrderHandle.aspx';
 	let oData = config.data;
 	let oEncodeRequestData = querystring.escape(JSON.stringify(oData));
-	let DataMD5 = md5(JSON.stringify(oData) + APP_KEY);
-	let DataSign = base64(DataMD5);
+	let DataMD5 = Utils.md5(JSON.stringify(oData) + APP_KEY);
+	let DataSign = Utils.base64(DataMD5);
 	let oReqData = { RequestData: oEncodeRequestData, EBusinessID: EBusinessID, RequestType: RequestType, DataSign: DataSign, DataType: DataType};
 	let sData = querystring.stringify(oReqData);
 

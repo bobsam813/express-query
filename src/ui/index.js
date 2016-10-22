@@ -1,20 +1,23 @@
-const {app, dialog} = require('electron').remote;
-const server = require('../server/index.js');
-const Vue = require('vue');
+import Vue from 'vue';
+import * as Server from '../server/index';
+import * as electron from 'electron';
+import App from '../components/App';
 
-let RequestData = { ShipperCode: "EMS", LogisticCode: "9890190215507" };	// 要用双引号不能用单引号
+require('../common/css/reset.css');
+
+new Vue({
+	el: '#app',
+	template: `<div><App /></div>`,
+	components: { App }
+});
 
 
 
-server.getLogisticsMsg({
+/*let RequestData = { ShipperCode: "EMS", LogisticCode: "9890190215507" };
+
+Server.getLogisticsMsg({
 	data: RequestData,
 	success: function(data){
 		console.log(data)
 	}
-});
-
-module.exports = {
-	run: function(){
-		
-	}
-}
+});*/

@@ -14,11 +14,16 @@ module.exports = {
 	},
 	module: {
 	    loaders: [
+	    	{ test: /\.js$/, loader: 'babel', query: { cacheDirectory: true, presets: ['es2015'] } },
 	        { test: /\.css$/, loader: 'style!css'},
 	        { test: /\.html?$/, loader: 'html' },
 	        { test: /\.vue$/, loader: 'vue' },
+	        { test: /\.(woff(2)?|ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url" },
 	        { test: /\.(png|jpg|gif)$/ig, loader: 'url?limit=8192&name=img/[name]-[hash:16].[ext]'}
 	    ]
+	},
+	resolve: {
+	    extensions: ['', '.js', '.vue']
 	},
 	plugins: [
 	    new webpack.NoErrorsPlugin()
