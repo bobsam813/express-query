@@ -1,23 +1,31 @@
 <style>
-	
+	.w-input{width: 200px;}
 </style>
 
 <template>
-	<input type="text" v-model="msg" />
-	<child :msg.sync="msg"></child>
+	<div class="w-input">
+		<rd-text :textfield="user"></rd-text>
+	</div>
+	<rd-button type="primary" size="large">提交</rd-button>
+	<child :user.sync="user"></child>
 </template>
 
 <script>
 	import Child from './Child.vue';
+	import {rdText, rdButton} from 'radon-ui';
 
 	export default {
 		data() {
 			return {
-				msg: ''
+				user: {
+					value: 'hehe',
+					placeHolder: '请输入',
+					state: 'default'
+				}
 			}
 		},
 	  	components: {
-	    	Child
+	    	Child, rdText, rdButton
 	  	}
 	}
 </script>

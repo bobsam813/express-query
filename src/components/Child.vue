@@ -2,10 +2,10 @@
 	.msg{font-size: 14px;font-weight: bold;}
 </style>
 <template>
-	<p class="msg">{{msg}}</p>
+	<p class="msg">{{user.value}}</p>
 </template>
 <script>
 	export default {
-		props: ['msg']
+		props: ['user']
 	}
 </script>

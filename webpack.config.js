@@ -14,7 +14,7 @@ module.exports = {
 	},
 	module: {
 	    loaders: [
-	    	{ test: /\.js$/, loader: 'babel', query: { cacheDirectory: true, presets: ['es2015'] } },
+	    	{ test: /\.js$/, loader: 'babel', query: { presets: ['es2015'], plugins: [ ['transform-runtime', { helpers: false, polyfill: false, regenerator: true, }], 'transform-es2015-destructuring' ] } },
 	        { test: /\.css$/, loader: 'style!css'},
 	        { test: /\.html?$/, loader: 'html' },
 	        { test: /\.vue$/, loader: 'vue' },

@@ -1,9 +1,11 @@
 import Vue from 'vue';
-import * as Server from '../server/index';
-import * as electron from 'electron';
+import { RadonInstall } from 'radon-ui';
 import App from '../components/App';
 
 require('../common/css/reset.css');
+require('radon-ui/dist/static/css/dist.css');
+
+Vue.use(RadonInstall);
 
 new Vue({
 	el: '#app',
