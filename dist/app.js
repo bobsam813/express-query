@@ -247,7 +247,7 @@
 /***/ function(module, exports) {
 
 	/*!
-	 * Vue.js v1.0.26
+	 * Vue.js v1.0.28
 	 * (c) 2016 Evan You
 	 * Released under the MIT License.
 	 */'use strict';var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj;};function set(obj,key,val){if(hasOwn(obj,key)){obj[key]=val;return;}if(obj._isVue){set(obj._data,key,val);return;}var ob=obj.__ob__;if(!ob){obj[key]=val;return;}ob.convert(key,val);ob.dep.notify();if(ob.vms){var i=ob.vms.length;while(i--){var vm=ob.vms[i];vm._proxy(key);vm._digest();}}return val;}/**
@@ -294,7 +294,7 @@
 	 * @param {String} str
 	 * @return {String | false}
 	 */function stripQuotes(str){var a=str.charCodeAt(0);var b=str.charCodeAt(str.length-1);return a===b&&(a===0x22||a===0x27)?str.slice(1,-1):str;}/**
-	 * Camelize a hyphen-delmited string.
+	 * Camelize a hyphen-delimited string.
 	 *
 	 * @param {String} str
 	 * @return {String}
@@ -303,7 +303,7 @@
 	 *
 	 * @param {String} str
 	 * @return {String}
-	 */var hyphenateRE=/([a-z\d])([A-Z])/g;function hyphenate(str){return str.replace(hyphenateRE,'$1-$2').toLowerCase();}/**
+	 */var hyphenateRE=/([^-])([A-Z])/g;function hyphenate(str){return str.replace(hyphenateRE,'$1-$2').replace(hyphenateRE,'$1-$2').toLowerCase();}/**
 	 * Converts hyphen/underscore/slash delimitered names into
 	 * camelized classNames.
 	 *
@@ -383,9 +383,8 @@
 	 */function looseEqual(a,b){/* eslint-disable eqeqeq */return a==b||(isObject(a)&&isObject(b)?JSON.stringify(a)===JSON.stringify(b):false);/* eslint-enable eqeqeq */}var hasProto='__proto__'in{};// Browser environment sniffing
 	var inBrowser=typeof window!=='undefined'&&Object.prototype.toString.call(window)!=='[object Object]';// detect devtools
 	var devtools=inBrowser&&window.__VUE_DEVTOOLS_GLOBAL_HOOK__;// UA sniffing for working around browser-specific quirks
-	var UA=inBrowser&&window.navigator.userAgent.toLowerCase();var isIE=UA&&UA.indexOf('trident')>0;var isIE9=UA&&UA.indexOf('msie 9.0')>0;var isAndroid=UA&&UA.indexOf('android')>0;var isIos=UA&&/(iphone|ipad|ipod|ios)/i.test(UA);var iosVersionMatch=isIos&&UA.match(/os ([\d_]+)/);var iosVersion=iosVersionMatch&&iosVersionMatch[1].split('_');// detecting iOS UIWebView by indexedDB
-	var hasMutationObserverBug=iosVersion&&Number(iosVersion[0])>=9&&Number(iosVersion[1])>=3&&!window.indexedDB;var transitionProp=undefined;var transitionEndEvent=undefined;var animationProp=undefined;var animationEndEvent=undefined;// Transition property/event sniffing
-	if(inBrowser&&!isIE9){var isWebkitTrans=window.ontransitionend===undefined&&window.onwebkittransitionend!==undefined;var isWebkitAnim=window.onanimationend===undefined&&window.onwebkitanimationend!==undefined;transitionProp=isWebkitTrans?'WebkitTransition':'transition';transitionEndEvent=isWebkitTrans?'webkitTransitionEnd':'transitionend';animationProp=isWebkitAnim?'WebkitAnimation':'animation';animationEndEvent=isWebkitAnim?'webkitAnimationEnd':'animationend';}/**
+	var UA=inBrowser&&window.navigator.userAgent.toLowerCase();var isIE=UA&&UA.indexOf('trident')>0;var isIE9=UA&&UA.indexOf('msie 9.0')>0;var isAndroid=UA&&UA.indexOf('android')>0;var isIOS=UA&&/iphone|ipad|ipod|ios/.test(UA);var transitionProp=undefined;var transitionEndEvent=undefined;var animationProp=undefined;var animationEndEvent=undefined;// Transition property/event sniffing
+	if(inBrowser&&!isIE9){var isWebkitTrans=window.ontransitionend===undefined&&window.onwebkittransitionend!==undefined;var isWebkitAnim=window.onanimationend===undefined&&window.onwebkitanimationend!==undefined;transitionProp=isWebkitTrans?'WebkitTransition':'transition';transitionEndEvent=isWebkitTrans?'webkitTransitionEnd':'transitionend';animationProp=isWebkitAnim?'WebkitAnimation':'animation';animationEndEvent=isWebkitAnim?'webkitAnimationEnd':'animationend';}/* istanbul ignore next */function isNative(Ctor){return /native code/.test(Ctor.toString());}/**
 	 * Defer a task to execute it asynchronously. Ideally this
 	 * should be executed as a microtask, so we leverage
 	 * MutationObserver if it's available, and fallback to
@@ -393,10 +392,21 @@
 	 *
 	 * @param {Function} cb
 	 * @param {Object} ctx
-	 */var nextTick=function(){var callbacks=[];var pending=false;var timerFunc;function nextTickHandler(){pending=false;var copies=callbacks.slice(0);callbacks=[];for(var i=0;i<copies.length;i++){copies[i]();}}/* istanbul ignore if */if(typeof MutationObserver!=='undefined'&&!hasMutationObserverBug){var counter=1;var observer=new MutationObserver(nextTickHandler);var textNode=document.createTextNode(counter);observer.observe(textNode,{characterData:true});timerFunc=function timerFunc(){counter=(counter+1)%2;textNode.data=counter;};}else{// webpack attempts to inject a shim for setImmediate
-	// if it is used as a global, so we have to work around that to
-	// avoid bundling unnecessary code.
-	var context=inBrowser?window:typeof global!=='undefined'?global:{};timerFunc=context.setImmediate||setTimeout;}return function(cb,ctx){var func=ctx?function(){cb.call(ctx);}:cb;callbacks.push(func);if(pending)return;pending=true;timerFunc(nextTickHandler,0);};}();var _Set=undefined;/* istanbul ignore if */if(typeof Set!=='undefined'&&Set.toString().match(/native code/)){// use native Set when available.
+	 */var nextTick=function(){var callbacks=[];var pending=false;var timerFunc=undefined;function nextTickHandler(){pending=false;var copies=callbacks.slice(0);callbacks.length=0;for(var i=0;i<copies.length;i++){copies[i]();}}// the nextTick behavior leverages the microtask queue, which can be accessed
+	// via either native Promise.then or MutationObserver.
+	// MutationObserver has wider support, however it is seriously bugged in
+	// UIWebView in iOS >= 9.3.3 when triggered in touch event handlers. It
+	// completely stops working after triggering a few times... so, if native
+	// Promise is available, we will use it:
+	/* istanbul ignore if */if(typeof Promise!=='undefined'&&isNative(Promise)){var p=Promise.resolve();var noop=function noop(){};timerFunc=function timerFunc(){p.then(nextTickHandler);// in problematic UIWebViews, Promise.then doesn't completely break, but
+	// it can get stuck in a weird state where callbacks are pushed into the
+	// microtask queue but the queue isn't being flushed, until the browser
+	// needs to do some other work, e.g. handle a timer. Therefore we can
+	// "force" the microtask queue to be flushed by adding an empty timer.
+	if(isIOS)setTimeout(noop);};}else if(typeof MutationObserver!=='undefined'){// use MutationObserver where native Promise is not available,
+	// e.g. IE11, iOS7, Android 4.4
+	var counter=1;var observer=new MutationObserver(nextTickHandler);var textNode=document.createTextNode(String(counter));observer.observe(textNode,{characterData:true});timerFunc=function timerFunc(){counter=(counter+1)%2;textNode.data=String(counter);};}else{// fallback to setTimeout
+	/* istanbul ignore next */timerFunc=setTimeout;}return function(cb,ctx){var func=ctx?function(){cb.call(ctx);}:cb;callbacks.push(func);if(pending)return;pending=true;timerFunc(nextTickHandler,0);};}();var _Set=undefined;/* istanbul ignore if */if(typeof Set!=='undefined'&&isNative(Set)){// use native Set when available.
 	_Set=Set;}else{// a non-standard Set polyfill that only works with primitive keys.
 	_Set=function _Set(){this.set=Object.create(null);};_Set.prototype.has=function(key){return this.set[key]!==undefined;};_Set.prototype.add=function(key){this.set[key]=1;};_Set.prototype.clear=function(){this.set=Object.create(null);};}function Cache(limit){this.size=0;this.limit=limit;this.head=this.tail=undefined;this._keymap=Object.create(null);}var p=Cache.prototype;/**
 	 * Put <value> into the cache associated with <key>.
@@ -427,11 +437,13 @@
 	}entry.newer=undefined;// D --x
 	entry.older=this.tail;// D. --> E
 	if(this.tail){this.tail.newer=entry;// E. <-- D
-	}this.tail=entry;return returnEntry?entry:entry.value;};var cache$1=new Cache(1000);var filterTokenRE=/[^\s'"]+|'[^']*'|"[^"]*"/g;var reservedArgRE=/^in$|^-?\d+/;/**
+	}this.tail=entry;return returnEntry?entry:entry.value;};var cache$1=new Cache(1000);var reservedArgRE=/^in$|^-?\d+/;/**
 	 * Parser state
-	 */var str;var dir;var c;var prev;var i;var l;var lastFilterIndex;var inSingle;var inDouble;var curly;var square;var paren;/**
-	 * Push a filter to the current directive object
-	 */function pushFilter(){var exp=str.slice(lastFilterIndex,i).trim();var filter;if(exp){filter={};var tokens=exp.match(filterTokenRE);filter.name=tokens[0];if(tokens.length>1){filter.args=tokens.slice(1).map(processFilterArg);}}if(filter){(dir.filters=dir.filters||[]).push(filter);}lastFilterIndex=i+1;}/**
+	 */var str;var dir;var len;var index;var chr;var state;var startState=0;var filterState=1;var filterNameState=2;var filterArgState=3;var doubleChr=0x22;var singleChr=0x27;var pipeChr=0x7C;var escapeChr=0x5C;var spaceChr=0x20;var expStartChr={0x5B:1,0x7B:1,0x28:1};var expChrPair={0x5B:0x5D,0x7B:0x7D,0x28:0x29};function peek(){return str.charCodeAt(index+1);}function next(){return str.charCodeAt(++index);}function eof(){return index>=len;}function eatSpace(){while(peek()===spaceChr){next();}}function isStringStart(chr){return chr===doubleChr||chr===singleChr;}function isExpStart(chr){return expStartChr[chr];}function isExpEnd(start,chr){return expChrPair[start]===chr;}function parseString(){var stringQuote=next();var chr;while(!eof()){chr=next();// escape char
+	if(chr===escapeChr){next();}else if(chr===stringQuote){break;}}}function parseSpecialExp(chr){var inExp=0;var startChr=chr;while(!eof()){chr=peek();if(isStringStart(chr)){parseString();continue;}if(startChr===chr){inExp++;}if(isExpEnd(startChr,chr)){inExp--;}next();if(inExp===0){break;}}}/**
+	 * syntax:
+	 * expression | filterName  [arg  arg [| filterName arg arg]]
+	 */function parseExpression(){var start=index;while(!eof()){chr=peek();if(isStringStart(chr)){parseString();}else if(isExpStart(chr)){parseSpecialExp(chr);}else if(chr===pipeChr){next();chr=peek();if(chr===pipeChr){next();}else{if(state===startState||state===filterArgState){state=filterState;}break;}}else if(chr===spaceChr&&(state===filterNameState||state===filterArgState)){eatSpace();break;}else{if(state===filterState){state=filterNameState;}next();}}return str.slice(start+1,index)||null;}function parseFilterList(){var filters=[];while(!eof()){filters.push(parseFilter());}return filters;}function parseFilter(){var filter={};var args;state=filterState;filter.name=parseExpression().trim();state=filterArgState;args=parseFilterArguments();if(args.length){filter.args=args;}return filter;}function parseFilterArguments(){var args=[];while(!eof()&&state!==filterState){var arg=parseExpression();if(!arg){break;}args.push(processFilterArg(arg));}return args;}/**
 	 * Check if an argument is dynamic and strip quotes.
 	 *
 	 * @param {String} arg
@@ -453,20 +465,7 @@
 	 * @param {String} s
 	 * @return {Object}
 	 */function parseDirective(s){var hit=cache$1.get(s);if(hit){return hit;}// reset parser state
-	str=s;inSingle=inDouble=false;curly=square=paren=0;lastFilterIndex=0;dir={};for(i=0,l=str.length;i<l;i++){prev=c;c=str.charCodeAt(i);if(inSingle){// check single quote
-	if(c===0x27&&prev!==0x5C)inSingle=!inSingle;}else if(inDouble){// check double quote
-	if(c===0x22&&prev!==0x5C)inDouble=!inDouble;}else if(c===0x7C&&// pipe
-	str.charCodeAt(i+1)!==0x7C&&str.charCodeAt(i-1)!==0x7C){if(dir.expression==null){// first filter, end of expression
-	lastFilterIndex=i+1;dir.expression=str.slice(0,i).trim();}else{// already has filter
-	pushFilter();}}else{switch(c){case 0x22:inDouble=true;break;// "
-	case 0x27:inSingle=true;break;// '
-	case 0x28:paren++;break;// (
-	case 0x29:paren--;break;// )
-	case 0x5B:square++;break;// [
-	case 0x5D:square--;break;// ]
-	case 0x7B:curly++;break;// {
-	case 0x7D:curly--;break;// }
-	}}}if(dir.expression==null){dir.expression=str.slice(0,i).trim();}else if(lastFilterIndex!==0){pushFilter();}cache$1.put(s,dir);return dir;}var directive=Object.freeze({parseDirective:parseDirective});var regexEscapeRE=/[-.*+?^${}()|[\]\/\\]/g;var cache=undefined;var tagRE=undefined;var htmlRE=undefined;/**
+	str=s;dir={};len=str.length;index=-1;chr='';state=startState;var filters;if(str.indexOf('|')<0){dir.expression=str.trim();}else{dir.expression=parseExpression().trim();filters=parseFilterList();if(filters.length){dir.filters=filters;}}cache$1.put(s,dir);return dir;}var directive=Object.freeze({parseDirective:parseDirective});var regexEscapeRE=/[-.*+?^${}()|[\]\/\\]/g;var cache=undefined;var tagRE=undefined;var htmlRE=undefined;/**
 	 * Escape a string so it can be used in a RegExp
 	 * constructor.
 	 *
@@ -953,7 +952,7 @@
 	 * @param {String} key
 	 * @param {*} val
 	 */function defineReactive(obj,key,val){var dep=new Dep();var property=Object.getOwnPropertyDescriptor(obj,key);if(property&&property.configurable===false){return;}// cater for pre-defined getter/setters
-	var getter=property&&property.get;var setter=property&&property.set;var childOb=observe(val);Object.defineProperty(obj,key,{enumerable:true,configurable:true,get:function reactiveGetter(){var value=getter?getter.call(obj):val;if(Dep.target){dep.depend();if(childOb){childOb.dep.depend();}if(isArray(value)){for(var e,i=0,l=value.length;i<l;i++){e=value[i];e&&e.__ob__&&e.__ob__.dep.depend();}}}return value;},set:function reactiveSetter(newVal){var value=getter?getter.call(obj):val;if(newVal===value){return;}if(setter){setter.call(obj,newVal);}else{val=newVal;}childOb=observe(newVal);dep.notify();}});}var util=Object.freeze({defineReactive:defineReactive,set:set,del:del,hasOwn:hasOwn,isLiteral:isLiteral,isReserved:isReserved,_toString:_toString,toNumber:toNumber,toBoolean:toBoolean,stripQuotes:stripQuotes,camelize:camelize,hyphenate:hyphenate,classify:classify,bind:bind,toArray:toArray,extend:extend,isObject:isObject,isPlainObject:isPlainObject,def:def,debounce:_debounce,indexOf:indexOf,cancellable:cancellable,looseEqual:looseEqual,isArray:isArray,hasProto:hasProto,inBrowser:inBrowser,devtools:devtools,isIE:isIE,isIE9:isIE9,isAndroid:isAndroid,isIos:isIos,iosVersionMatch:iosVersionMatch,iosVersion:iosVersion,hasMutationObserverBug:hasMutationObserverBug,get transitionProp(){return transitionProp;},get transitionEndEvent(){return transitionEndEvent;},get animationProp(){return animationProp;},get animationEndEvent(){return animationEndEvent;},nextTick:nextTick,get _Set(){return _Set;},query:query,inDoc:inDoc,getAttr:getAttr,getBindAttr:getBindAttr,hasBindAttr:hasBindAttr,before:before,after:after,remove:remove,prepend:prepend,replace:replace,on:on,off:off,setClass:setClass,addClass:addClass,removeClass:removeClass,extractContent:extractContent,trimNode:trimNode,isTemplate:isTemplate,createAnchor:createAnchor,findRef:findRef,mapNodeRange:mapNodeRange,removeNodeRange:removeNodeRange,isFragment:isFragment,getOuterHTML:getOuterHTML,mergeOptions:mergeOptions,resolveAsset:resolveAsset,checkComponentAttr:checkComponentAttr,commonTagRE:commonTagRE,reservedTagRE:reservedTagRE,get warn(){return warn;}});var uid=0;function initMixin(Vue){/**
+	var getter=property&&property.get;var setter=property&&property.set;var childOb=observe(val);Object.defineProperty(obj,key,{enumerable:true,configurable:true,get:function reactiveGetter(){var value=getter?getter.call(obj):val;if(Dep.target){dep.depend();if(childOb){childOb.dep.depend();}if(isArray(value)){for(var e,i=0,l=value.length;i<l;i++){e=value[i];e&&e.__ob__&&e.__ob__.dep.depend();}}}return value;},set:function reactiveSetter(newVal){var value=getter?getter.call(obj):val;if(newVal===value){return;}if(setter){setter.call(obj,newVal);}else{val=newVal;}childOb=observe(newVal);dep.notify();}});}var util=Object.freeze({defineReactive:defineReactive,set:set,del:del,hasOwn:hasOwn,isLiteral:isLiteral,isReserved:isReserved,_toString:_toString,toNumber:toNumber,toBoolean:toBoolean,stripQuotes:stripQuotes,camelize:camelize,hyphenate:hyphenate,classify:classify,bind:bind,toArray:toArray,extend:extend,isObject:isObject,isPlainObject:isPlainObject,def:def,debounce:_debounce,indexOf:indexOf,cancellable:cancellable,looseEqual:looseEqual,isArray:isArray,hasProto:hasProto,inBrowser:inBrowser,devtools:devtools,isIE:isIE,isIE9:isIE9,isAndroid:isAndroid,isIOS:isIOS,get transitionProp(){return transitionProp;},get transitionEndEvent(){return transitionEndEvent;},get animationProp(){return animationProp;},get animationEndEvent(){return animationEndEvent;},nextTick:nextTick,get _Set(){return _Set;},query:query,inDoc:inDoc,getAttr:getAttr,getBindAttr:getBindAttr,hasBindAttr:hasBindAttr,before:before,after:after,remove:remove,prepend:prepend,replace:replace,on:on,off:off,setClass:setClass,addClass:addClass,removeClass:removeClass,extractContent:extractContent,trimNode:trimNode,isTemplate:isTemplate,createAnchor:createAnchor,findRef:findRef,mapNodeRange:mapNodeRange,removeNodeRange:removeNodeRange,isFragment:isFragment,getOuterHTML:getOuterHTML,mergeOptions:mergeOptions,resolveAsset:resolveAsset,checkComponentAttr:checkComponentAttr,commonTagRE:commonTagRE,reservedTagRE:reservedTagRE,get warn(){return warn;}});var uid=0;function initMixin(Vue){/**
 	   * The main init sequence. This is called for every
 	   * instance, including ones that are created from extended
 	   * constructors.
@@ -987,7 +986,7 @@
 	// and container directives.
 	this._scope=options._scope;// fragment:
 	// if this instance is compiled inside a Fragment, it
-	// needs to reigster itself as a child of that fragment
+	// needs to register itself as a child of that fragment
 	// for attach/detach to work properly.
 	this._frag=options._frag;if(this._frag){this._frag.children.push(this);}// push self into parent / transclusion host
 	if(this.$parent){this.$parent.$children.push(this);}// merge options.
@@ -1048,7 +1047,7 @@
 	 *
 	 * @param {Object} obj
 	 * @param {String} path
-	 */function getPath(obj,path){return parseExpression(path).get(obj);}/**
+	 */function getPath(obj,path){return parseExpression$1(path).get(obj);}/**
 	 * Warn against setting non-existent root path on a vm.
 	 */var warnNonExistent;if(process.env.NODE_ENV!=='production'){warnNonExistent=function warnNonExistent(path,vm){warn('You are setting a non-existent path "'+path.raw+'" '+'on a vm instance. Consider pre-initializing the property '+'with the "data" option for more reliable reactivity '+'and better performance.',vm);};}/**
 	 * Set on an object from a path
@@ -1056,8 +1055,8 @@
 	 * @param {Object} obj
 	 * @param {String | Array} path
 	 * @param {*} val
-	 */function setPath(obj,path,val){var original=obj;if(typeof path==='string'){path=parse(path);}if(!path||!isObject(obj)){return false;}var last,key;for(var i=0,l=path.length;i<l;i++){last=obj;key=path[i];if(key.charAt(0)==='*'){key=parseExpression(key.slice(1)).get.call(original,original);}if(i<l-1){obj=obj[key];if(!isObject(obj)){obj={};if(process.env.NODE_ENV!=='production'&&last._isVue){warnNonExistent(path,last);}set(last,key,obj);}}else{if(isArray(obj)){obj.$set(key,val);}else if(key in obj){obj[key]=val;}else{if(process.env.NODE_ENV!=='production'&&obj._isVue){warnNonExistent(path,obj);}set(obj,key,val);}}}return true;}var path=Object.freeze({parsePath:parsePath,getPath:getPath,setPath:setPath});var expressionCache=new Cache(1000);var allowedKeywords='Math,Date,this,true,false,null,undefined,Infinity,NaN,'+'isNaN,isFinite,decodeURI,decodeURIComponent,encodeURI,'+'encodeURIComponent,parseInt,parseFloat';var allowedKeywordsRE=new RegExp('^('+allowedKeywords.replace(/,/g,'\\b|')+'\\b)');// keywords that don't make sense inside expressions
-	var improperKeywords='break,case,class,catch,const,continue,debugger,default,'+'delete,do,else,export,extends,finally,for,function,if,'+'import,in,instanceof,let,return,super,switch,throw,try,'+'var,while,with,yield,enum,await,implements,package,'+'protected,static,interface,private,public';var improperKeywordsRE=new RegExp('^('+improperKeywords.replace(/,/g,'\\b|')+'\\b)');var wsRE=/\s/g;var newlineRE=/\n/g;var saveRE=/[\{,]\s*[\w\$_]+\s*:|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*\$\{|\}(?:[^`\\]|\\.)*`|`(?:[^`\\]|\\.)*`)|new |typeof |void /g;var restoreRE=/"(\d+)"/g;var pathTestRE=/^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/;var identRE=/[^\w$\.](?:[A-Za-z_$][\w$]*)/g;var literalValueRE$1=/^(?:true|false|null|undefined|Infinity|NaN)$/;function noop(){}/**
+	 */function setPath(obj,path,val){var original=obj;if(typeof path==='string'){path=parse(path);}if(!path||!isObject(obj)){return false;}var last,key;for(var i=0,l=path.length;i<l;i++){last=obj;key=path[i];if(key.charAt(0)==='*'){key=parseExpression$1(key.slice(1)).get.call(original,original);}if(i<l-1){obj=obj[key];if(!isObject(obj)){obj={};if(process.env.NODE_ENV!=='production'&&last._isVue){warnNonExistent(path,last);}set(last,key,obj);}}else{if(isArray(obj)){obj.$set(key,val);}else if(key in obj){obj[key]=val;}else{if(process.env.NODE_ENV!=='production'&&obj._isVue){warnNonExistent(path,obj);}set(obj,key,val);}}}return true;}var path=Object.freeze({parsePath:parsePath,getPath:getPath,setPath:setPath});var expressionCache=new Cache(1000);var allowedKeywords='Math,Date,this,true,false,null,undefined,Infinity,NaN,'+'isNaN,isFinite,decodeURI,decodeURIComponent,encodeURI,'+'encodeURIComponent,parseInt,parseFloat';var allowedKeywordsRE=new RegExp('^('+allowedKeywords.replace(/,/g,'\\b|')+'\\b)');// keywords that don't make sense inside expressions
+	var improperKeywords='break,case,class,catch,const,continue,debugger,default,'+'delete,do,else,export,extends,finally,for,function,if,'+'import,in,instanceof,let,return,super,switch,throw,try,'+'var,while,with,yield,enum,await,implements,package,'+'protected,static,interface,private,public';var improperKeywordsRE=new RegExp('^('+improperKeywords.replace(/,/g,'\\b|')+'\\b)');var wsRE=/\s/g;var newlineRE=/\n/g;var saveRE=/[\{,]\s*[\w\$_]+\s*:|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*\$\{|\}(?:[^`\\"']|\\.)*`|`(?:[^`\\]|\\.)*`)|new |typeof |void /g;var restoreRE=/"(\d+)"/g;var pathTestRE=/^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/;var identRE=/[^\w$\.](?:[A-Za-z_$][\w$]*)/g;var literalValueRE$1=/^(?:true|false|null|undefined|Infinity|NaN)$/;function noop(){}/**
 	 * Save / Rewrite / Restore
 	 *
 	 * When rewriting paths found in an expression, it is
@@ -1118,7 +1117,7 @@
 	 * @param {String} exp
 	 * @param {Boolean} needSet
 	 * @return {Function}
-	 */function parseExpression(exp,needSet){exp=exp.trim();// try cache
+	 */function parseExpression$1(exp,needSet){exp=exp.trim();// try cache
 	var hit=expressionCache.get(exp);if(hit){if(needSet&&!hit.set){hit.set=compileSetter(hit.exp);}return hit;}var res={exp:exp};res.get=isSimplePath(exp)&&exp.indexOf('[')<0// optimized super simple getter
 	?makeGetterFn('scope.'+exp)// dynamic getter
 	:compileGetter(exp);if(needSet){res.set=compileSetter(exp);}expressionCache.put(exp,res);return res;}/**
@@ -1128,7 +1127,7 @@
 	 * @return {Boolean}
 	 */function isSimplePath(exp){return pathTestRE.test(exp)&&// don't treat literal values as paths
 	!literalValueRE$1.test(exp)&&// Math constants e.g. Math.PI, Math.E etc.
-	exp.slice(0,5)!=='Math.';}var expression=Object.freeze({parseExpression:parseExpression,isSimplePath:isSimplePath});// we have two separate queues: one for directive updates
+	exp.slice(0,5)!=='Math.';}var expression=Object.freeze({parseExpression:parseExpression$1,isSimplePath:isSimplePath});// we have two separate queues: one for directive updates
 	// and one for user watcher registered via $watch().
 	// we want to guarantee directive updates to be called
 	// before user watchers so that when user watchers are
@@ -1182,7 +1181,7 @@
 	this.active=true;this.dirty=this.lazy;// for lazy watchers
 	this.deps=[];this.newDeps=[];this.depIds=new _Set();this.newDepIds=new _Set();this.prevError=null;// for async error stacks
 	// parse expression for getter/setter
-	if(isFn){this.getter=expOrFn;this.setter=undefined;}else{var res=parseExpression(expOrFn,this.twoWay);this.getter=res.get;this.setter=res.set;}this.value=this.lazy?undefined:this.get();// state for avoiding false triggers for deep and Array
+	if(isFn){this.getter=expOrFn;this.setter=undefined;}else{var res=parseExpression$1(expOrFn,this.twoWay);this.getter=res.get;this.setter=res.set;}this.value=this.lazy?undefined:this.get();// state for avoiding false triggers for deep and Array
 	// watchers during vm._digest()
 	this.queued=this.shallow=false;}/**
 	 * Evaluate the getter, and re-collect dependencies.
@@ -1376,7 +1375,7 @@
 	 * @param {Vue} host
 	 * @param {Object} scope
 	 * @param {Fragment} parentFrag
-	 */FragmentFactory.prototype.create=function(host,scope,parentFrag){var frag=cloneNode(this.template);return new Fragment(this.linker,this.vm,frag,host,scope,parentFrag);};var ON=700;var MODEL=800;var BIND=850;var TRANSITION=1100;var EL=1500;var COMPONENT=1500;var PARTIAL=1750;var IF=2100;var FOR=2200;var SLOT=2300;var uid$3=0;var vFor={priority:FOR,terminal:true,params:['track-by','stagger','enter-stagger','leave-stagger'],bind:function bind(){// support "item in/of items" syntax
+	 */FragmentFactory.prototype.create=function(host,scope,parentFrag){var frag=cloneNode(this.template);return new Fragment(this.linker,this.vm,frag,host,scope,parentFrag);};var ON=700;var MODEL=800;var BIND=850;var TRANSITION=1100;var EL=1500;var COMPONENT=1500;var PARTIAL=1750;var IF=2100;var FOR=2200;var SLOT=2300;var uid$3=0;var vFor={priority:FOR,terminal:true,params:['track-by','stagger','enter-stagger','leave-stagger'],bind:function bind(){if(process.env.NODE_ENV!=='production'&&this.el.hasAttribute('v-if')){warn('<'+this.el.tagName.toLowerCase()+' v-for="'+this.expression+'" v-if="'+this.el.getAttribute('v-if')+'">: '+'Using v-if and v-for on the same element is not recommended - '+'consider filtering the source Array instead.',this.vm);}// support "item in/of items" syntax
 	var inMatch=this.expression.match(/(.*) (?:in|of) (.*)/);if(inMatch){var itMatch=inMatch[1].match(/\((.*),(.*)\)/);if(itMatch){this.iterator=itMatch[1].trim();this.alias=itMatch[2].trim();}else{this.alias=inMatch[1].trim();}this.expression=inMatch[2];}if(!this.alias){process.env.NODE_ENV!=='production'&&warn('Invalid v-for expression "'+this.descriptor.raw+'": '+'alias is required.',this.vm);return;}// uid as a cache identifier
 	this.id='__v-for__'+ ++uid$3;// check if this is an option list,
 	// so that we know if we need to update the <select>'s
@@ -1410,7 +1409,7 @@
 	if(key){frag.scope.$key=key;}// update iterator
 	if(iterator){frag.scope[iterator]=key!==null?key:i;}// update data for track-by, object repeat &
 	// primitive values.
-	if(trackByKey||convertedFromObject||primitive){withoutConversion(function(){frag.scope[alias]=value;});}}else{// new isntance
+	if(trackByKey||convertedFromObject||primitive){withoutConversion(function(){frag.scope[alias]=value;});}}else{// new instance
 	frag=this.create(value,alias,i,key);frag.fresh=!init;}frags[i]=frag;if(init){frag.before(end);}}// we're done for the initial render.
 	if(init){return;}// Second pass, go through the old fragments and
 	// destroy those who are not reused (and remove them
@@ -1534,12 +1533,6 @@
 	 * @param {String} id
 	 * @return {Fragment}
 	 */function findPrevFrag(frag,anchor,id){var el=frag.node.previousSibling;/* istanbul ignore if */if(!el)return;frag=el.__v_frag;while((!frag||frag.forId!==id||!frag.inserted)&&el!==anchor){el=el.previousSibling;/* istanbul ignore if */if(!el)return;frag=el.__v_frag;}return frag;}/**
-	 * Find a vm from a fragment.
-	 *
-	 * @param {Fragment} frag
-	 * @return {Vue|undefined}
-	 */function findVmFromFrag(frag){var node=frag.node;// handle multi-node frag
-	if(frag.end){while(!node.__vue__&&node!==frag.end&&node.nextSibling){node=node.nextSibling;}}return node.__vue__;}/**
 	 * Create a range array from given number.
 	 *
 	 * @param {Number} n
@@ -1551,7 +1544,13 @@
 	 * @param {String} key
 	 * @param {*} value
 	 * @param {String} [trackByKey]
-	 */function getTrackByKey(index,key,value,trackByKey){return trackByKey?trackByKey==='$index'?index:trackByKey.charAt(0).match(/\w/)?getPath(value,trackByKey):value[trackByKey]:key||value;}if(process.env.NODE_ENV!=='production'){vFor.warnDuplicate=function(value){warn('Duplicate value found in v-for="'+this.descriptor.raw+'": '+JSON.stringify(value)+'. Use track-by="$index" if '+'you are expecting duplicate values.',this.vm);};}var vIf={priority:IF,terminal:true,bind:function bind(){var el=this.el;if(!el.__vue__){// check else block
+	 */function getTrackByKey(index,key,value,trackByKey){return trackByKey?trackByKey==='$index'?index:trackByKey.charAt(0).match(/\w/)?getPath(value,trackByKey):value[trackByKey]:key||value;}if(process.env.NODE_ENV!=='production'){vFor.warnDuplicate=function(value){warn('Duplicate value found in v-for="'+this.descriptor.raw+'": '+JSON.stringify(value)+'. Use track-by="$index" if '+'you are expecting duplicate values.',this.vm);};}/**
+	 * Find a vm from a fragment.
+	 *
+	 * @param {Fragment} frag
+	 * @return {Vue|undefined}
+	 */function findVmFromFrag(frag){var node=frag.node;// handle multi-node frag
+	if(frag.end){while(!node.__vue__&&node!==frag.end&&node.nextSibling){node=node.nextSibling;}}return node.__vue__;}var vIf={priority:IF,terminal:true,bind:function bind(){var el=this.el;if(!el.__vue__){// check else block
 	var next=el.nextElementSibling;if(next&&getAttr(next,'v-else')!==null){remove(next);this.elseEl=next;}// check main block
 	this.anchor=createAnchor('v-if');replace(el,this.anchor);}else{process.env.NODE_ENV!=='production'&&warn('v-if="'+this.expression+'" cannot be '+'used on an instance root element.',this.vm);this.invalid=true;}},update:function update(value){if(this.invalid)return;if(value){if(!this.frag){this.insert();}}else{this.remove();}},insert:function insert(){if(this.elseFrag){this.elseFrag.remove();this.elseFrag=null;}// lazy init factory
 	if(!this.factory){this.factory=new FragmentFactory(this.vm,this.el);}this.frag=this.factory.create(this._host,this._scope,this._frag);this.frag.before(this.anchor);},remove:function remove(){if(this.frag){this.frag.remove();this.frag=null;}if(this.elseEl&&!this.elseFrag){if(!this.elseFactory){this.elseFactory=new FragmentFactory(this.elseEl._context||this.vm,this.elseEl);}this.elseFrag=this.elseFactory.create(this._host,this._scope,this._frag);this.elseFrag.before(this.anchor);}},unbind:function unbind(){if(this.frag){this.frag.destroy();}if(this.elseFrag){this.elseFrag.destroy();}}};var show={bind:function bind(){// check else block
@@ -1610,7 +1609,7 @@
 	 *
 	 * @param {Array} arr
 	 * @param {*} val
-	 */function indexOf$1(arr,val){var i=arr.length;while(i--){if(looseEqual(arr[i],val)){return i;}}return-1;}var checkbox={bind:function bind(){var self=this;var el=this.el;this.getValue=function(){return el.hasOwnProperty('_value')?el._value:self.params.number?toNumber(el.value):el.value;};function getBooleanValue(){var val=el.checked;if(val&&el.hasOwnProperty('_trueValue')){return el._trueValue;}if(!val&&el.hasOwnProperty('_falseValue')){return el._falseValue;}return val;}this.listener=function(){var model=self._watcher.value;if(isArray(model)){var val=self.getValue();if(el.checked){if(indexOf(model,val)<0){model.push(val);}}else{model.$remove(val);}}else{self.set(getBooleanValue());}};this.on('change',this.listener);if(el.hasAttribute('checked')){this.afterBind=this.listener;}},update:function update(value){var el=this.el;if(isArray(value)){el.checked=indexOf(value,this.getValue())>-1;}else{if(el.hasOwnProperty('_trueValue')){el.checked=looseEqual(value,el._trueValue);}else{el.checked=!!value;}}}};var handlers={text:text$2,radio:radio,select:select,checkbox:checkbox};var model={priority:MODEL,twoWay:true,handlers:handlers,params:['lazy','number','debounce'],/**
+	 */function indexOf$1(arr,val){var i=arr.length;while(i--){if(looseEqual(arr[i],val)){return i;}}return-1;}var checkbox={bind:function bind(){var self=this;var el=this.el;this.getValue=function(){return el.hasOwnProperty('_value')?el._value:self.params.number?toNumber(el.value):el.value;};function getBooleanValue(){var val=el.checked;if(val&&el.hasOwnProperty('_trueValue')){return el._trueValue;}if(!val&&el.hasOwnProperty('_falseValue')){return el._falseValue;}return val;}this.listener=function(){var model=self._watcher.get();if(isArray(model)){var val=self.getValue();var i=indexOf(model,val);if(el.checked){if(i<0){self.set(model.concat(val));}}else if(i>-1){self.set(model.slice(0,i).concat(model.slice(i+1)));}}else{self.set(getBooleanValue());}};this.on('change',this.listener);if(el.hasAttribute('checked')){this.afterBind=this.listener;}},update:function update(value){var el=this.el;if(isArray(value)){el.checked=indexOf(value,this.getValue())>-1;}else{if(el.hasOwnProperty('_trueValue')){el.checked=looseEqual(value,el._trueValue);}else{el.checked=!!value;}}}};var handlers={text:text$2,radio:radio,select:select,checkbox:checkbox};var model={priority:MODEL,twoWay:true,handlers:handlers,params:['lazy','number','debounce'],/**
 	   * Possible elements:
 	   *   <select>
 	   *   <textarea>
@@ -1668,7 +1667,13 @@
 	if(attr==='value'&&el.tagName==='TEXTAREA'){el.removeAttribute(attr);return;}// update attribute
 	if(enumeratedAttrRE.test(attr)){el.setAttribute(attr,value?'true':'false');}else if(value!=null&&value!==false){if(attr==='class'){// handle edge case #1960:
 	// class interpolation should not overwrite Vue transition class
-	if(el.__v_trans){value+=' '+el.__v_trans.id+'-transition';}setClass(el,value);}else if(xlinkRE.test(attr)){el.setAttributeNS(xlinkNS,attr,value===true?'':value);}else{el.setAttribute(attr,value===true?'':value);}}else{el.removeAttribute(attr);}}};var el={priority:EL,bind:function bind(){/* istanbul ignore if */if(!this.arg){return;}var id=this.id=camelize(this.arg);var refs=(this._scope||this.vm).$els;if(hasOwn(refs,id)){refs[id]=this.el;}else{defineReactive(refs,id,this.el);}},unbind:function unbind(){var refs=(this._scope||this.vm).$els;if(refs[this.id]===this.el){refs[this.id]=null;}}};var ref={bind:function bind(){process.env.NODE_ENV!=='production'&&warn('v-ref:'+this.arg+' must be used on a child '+'component. Found on <'+this.el.tagName.toLowerCase()+'>.',this.vm);}};var cloak={bind:function bind(){var el=this.el;this.vm.$once('pre-hook:compiled',function(){el.removeAttribute('v-cloak');});}};// must export plain object
+	if(el.__v_trans){value+=' '+el.__v_trans.id+'-transition';}setClass(el,value);}else if(xlinkRE.test(attr)){el.setAttributeNS(xlinkNS,attr,value===true?'':value);}else{el.setAttribute(attr,value===true?'':value);}}else{el.removeAttribute(attr);}}};var el={priority:EL,bind:function bind(){/* istanbul ignore if */if(!this.arg){return;}var id=this.id=camelize(this.arg);var refs=(this._scope||this.vm).$els;if(hasOwn(refs,id)){refs[id]=this.el;}else{defineReactive(refs,id,this.el);}},unbind:function unbind(){var refs=(this._scope||this.vm).$els;if(refs[this.id]===this.el){refs[this.id]=null;}}};var ref={bind:function bind(){process.env.NODE_ENV!=='production'&&warn('v-ref:'+this.arg+' must be used on a child '+'component. Found on <'+this.el.tagName.toLowerCase()+'>.',this.vm);}};var cloak={bind:function bind(){var el=this.el;this.vm.$once('pre-hook:compiled',function(){el.removeAttribute('v-cloak');});}};// logic control
+	// two-way binding
+	// event handling
+	// attributes
+	// ref & el
+	// cloak
+	// must export plain object
 	var directives={text:text$1,html:html,'for':vFor,'if':vIf,show:show,model:model,on:on$1,bind:bind$1,el:el,ref:ref,cloak:cloak};var vClass={deep:true,update:function update(value){if(!value){this.cleanup();}else if(typeof value==='string'){this.setClass(value.trim().split(/\s+/));}else{this.setClass(normalize$1(value));}},setClass:function setClass(value){this.cleanup(value);for(var i=0,l=value.length;i<l;i++){var val=value[i];if(val){apply(this.el,val,addClass);}}this.prevKeys=value;},cleanup:function cleanup(value){var prevKeys=this.prevKeys;if(!prevKeys)return;var i=prevKeys.length;while(i--){var key=prevKeys[i];if(!value||value.indexOf(key)<0){apply(this.el,key,removeClass);}}}};/**
 	 * Normalize objects and arrays (potentially containing objects)
 	 * into array of strings.
@@ -1815,7 +1820,7 @@
 	 * @param {Array} propOptions
 	 * @param {Vue} vm
 	 * @return {Function} propsLinkFn
-	 */function compileProps(el,propOptions,vm){var props=[];var names=Object.keys(propOptions);var i=names.length;var options,name,attr,value,path,parsed,prop;while(i--){name=names[i];options=propOptions[name]||empty;if(process.env.NODE_ENV!=='production'&&name==='$data'){warn('Do not use $data as prop.',vm);continue;}// props could contain dashes, which will be
+	 */function compileProps(el,propOptions,vm){var props=[];var propsData=vm.$options.propsData;var names=Object.keys(propOptions);var i=names.length;var options,name,attr,value,path,parsed,prop;while(i--){name=names[i];options=propOptions[name]||empty;if(process.env.NODE_ENV!=='production'&&name==='$data'){warn('Do not use $data as prop.',vm);continue;}// props could contain dashes, which will be
 	// interpreted as minus calculations by the parser
 	// so we need to camelize the path here
 	path=camelize(name);if(!identRE$1.test(path)){process.env.NODE_ENV!=='production'&&warn('Invalid prop key: "'+name+'". Prop keys '+'must be valid identifiers.',vm);continue;}prop={name:name,path:path,options:options,mode:propBindingModes.ONE_WAY,raw:null};attr=hyphenate(name);// first check dynamic version
@@ -1827,8 +1832,9 @@
 	prop.optimizedLiteral=true;}else{prop.dynamic=true;// check non-settable path for two-way bindings
 	if(process.env.NODE_ENV!=='production'&&prop.mode===propBindingModes.TWO_WAY&&!settablePathRE.test(value)){prop.mode=propBindingModes.ONE_WAY;warn('Cannot bind two-way prop with non-settable '+'parent path: '+value,vm);}}prop.parentPath=value;// warn required two-way
 	if(process.env.NODE_ENV!=='production'&&options.twoWay&&prop.mode!==propBindingModes.TWO_WAY){warn('Prop "'+name+'" expects a two-way binding type.',vm);}}else if((value=getAttr(el,attr))!==null){// has literal binding!
+	prop.raw=value;}else if(propsData&&(value=propsData[name]||propsData[path])!==null){// has propsData
 	prop.raw=value;}else if(process.env.NODE_ENV!=='production'){// check possible camelCase prop usage
-	var lowerCaseName=path.toLowerCase();value=/[A-Z\-]/.test(name)&&(el.getAttribute(lowerCaseName)||el.getAttribute(':'+lowerCaseName)||el.getAttribute('v-bind:'+lowerCaseName)||el.getAttribute(':'+lowerCaseName+'.once')||el.getAttribute('v-bind:'+lowerCaseName+'.once')||el.getAttribute(':'+lowerCaseName+'.sync')||el.getAttribute('v-bind:'+lowerCaseName+'.sync'));if(value){warn('Possible usage error for prop `'+lowerCaseName+'` - '+'did you mean `'+attr+'`? HTML is case-insensitive, remember to use '+'kebab-case for props in templates.',vm);}else if(options.required){// warn missing required
+	var lowerCaseName=path.toLowerCase();value=/[A-Z\-]/.test(name)&&(el.getAttribute(lowerCaseName)||el.getAttribute(':'+lowerCaseName)||el.getAttribute('v-bind:'+lowerCaseName)||el.getAttribute(':'+lowerCaseName+'.once')||el.getAttribute('v-bind:'+lowerCaseName+'.once')||el.getAttribute(':'+lowerCaseName+'.sync')||el.getAttribute('v-bind:'+lowerCaseName+'.sync'));if(value){warn('Possible usage error for prop `'+lowerCaseName+'` - '+'did you mean `'+attr+'`? HTML is case-insensitive, remember to use '+'kebab-case for props in templates.',vm);}else if(options.required&&(!propsData||!(name in propsData)&&!(path in propsData))){// warn missing required
 	warn('Missing required prop: '+name,vm);}}// push prop
 	props.push(prop);}return makePropsLinkFn(props);}/**
 	 * Build a function that applies props to a vm.
@@ -2102,12 +2108,11 @@
 	// them out (which turns out to be a perf hit).
 	// they are kept in development mode because they are
 	// useful for Vue's own tests.
-	vm._directives=[];}var originalDirCount=vm._directives.length;linker();var dirs=vm._directives.slice(originalDirCount);dirs.sort(directiveComparator);for(var i=0,l=dirs.length;i<l;i++){dirs[i]._bind();}return dirs;}/**
-	 * Directive priority sort comparator
+	vm._directives=[];}var originalDirCount=vm._directives.length;linker();var dirs=vm._directives.slice(originalDirCount);sortDirectives(dirs);for(var i=0,l=dirs.length;i<l;i++){dirs[i]._bind();}return dirs;}/**
+	 * sort directives by priority (stable sort)
 	 *
-	 * @param {Object} a
-	 * @param {Object} b
-	 */function directiveComparator(a,b){a=a.descriptor.def.priority||DEFAULT_PRIORITY;b=b.descriptor.def.priority||DEFAULT_PRIORITY;return a>b?-1:a===b?0:1;}/**
+	 * @param {Array} dirs
+	 */function sortDirectives(dirs){if(dirs.length===0)return;var groupedMap={};var i,j,k,l;var index=0;var priorities=[];for(i=0,j=dirs.length;i<j;i++){var dir=dirs[i];var priority=dir.descriptor.def.priority||DEFAULT_PRIORITY;var array=groupedMap[priority];if(!array){array=groupedMap[priority]=[];priorities.push(priority);}array.push(dir);}priorities.sort(function(a,b){return a>b?-1:a===b?0:1;});for(i=0,j=priorities.length;i<j;i++){var group=groupedMap[priorities[i]];for(k=0,l=group.length;k<l;k++){dirs[index++]=group[k];}}}/**
 	 * Linker functions return an unlink function that
 	 * tearsdown all directives instances generated during
 	 * the process.
@@ -2159,7 +2164,7 @@
 	var names=containerAttrs.filter(function(attr){// allow vue-loader/vueify scoped css attributes
 	return attr.name.indexOf('_v-')<0&&// allow event listeners
 	!onRE.test(attr.name)&&// allow slots
-	attr.name!=='slot';}).map(function(attr){return'"'+attr.name+'"';});if(names.length){var plural=names.length>1;warn('Attribute'+(plural?'s ':' ')+names.join(', ')+(plural?' are':' is')+' ignored on component '+'<'+options.el.tagName.toLowerCase()+'> because '+'the component is a fragment instance: '+'http://vuejs.org/guide/components.html#Fragment-Instance');}}options._containerAttrs=options._replacerAttrs=null;return function rootLinkFn(vm,el,scope){// link context scope dirs
+	attr.name!=='slot';}).map(function(attr){return'"'+attr.name+'"';});if(names.length){var plural=names.length>1;var componentName=options.el.tagName.toLowerCase();if(componentName==='component'&&options.name){componentName+=':'+options.name;}warn('Attribute'+(plural?'s ':' ')+names.join(', ')+(plural?' are':' is')+' ignored on component '+'<'+componentName+'> because '+'the component is a fragment instance: '+'http://vuejs.org/guide/components.html#Fragment-Instance');}}options._containerAttrs=options._replacerAttrs=null;return function rootLinkFn(vm,el,scope){// link context scope dirs
 	var context=vm._context;var contextDirs;if(context&&contextLinkFn){contextDirs=linkAndCapture(function(){contextLinkFn(context,el,null,scope);},context);}// link self
 	var selfDirs=linkAndCapture(function(){if(replacerLinkFn)replacerLinkFn(vm,el);},vm);// return the unlink function that tearsdown context
 	// container directives.
@@ -2179,7 +2184,8 @@
 	 */function compileElement(el,options){// preprocess textareas.
 	// textarea treats its text content as the initial value.
 	// just bind it as an attr directive for value.
-	if(el.tagName==='TEXTAREA'){var tokens=parseText(el.value);if(tokens){el.setAttribute(':value',tokensToExp(tokens));el.value='';}}var linkFn;var hasAttrs=el.hasAttributes();var attrs=hasAttrs&&toArray(el.attributes);// check terminal directives (for & if)
+	if(el.tagName==='TEXTAREA'){// a textarea which has v-pre attr should skip complie.
+	if(getAttr(el,'v-pre')!==null){return skip;}var tokens=parseText(el.value);if(tokens){el.setAttribute(':value',tokensToExp(tokens));el.value='';}}var linkFn;var hasAttrs=el.hasAttributes();var attrs=hasAttrs&&toArray(el.attributes);// check terminal directives (for & if)
 	if(hasAttrs){linkFn=checkTerminalDirectives(el,attrs,options);}// check element directives
 	if(!linkFn){linkFn=checkElementDirectives(el,options);}// check component
 	if(!linkFn){linkFn=checkComponent(el,options);}// normal directives
@@ -2264,7 +2270,7 @@
 	 * @param {String} [arg]
 	 * @param {Object} [modifiers]
 	 * @return {Function} terminalLinkFn
-	 */function makeTerminalNodeLinkFn(el,dirName,value,options,def,rawName,arg,modifiers){var parsed=parseDirective(value);var descriptor={name:dirName,arg:arg,expression:parsed.expression,filters:parsed.filters,raw:value,attr:rawName,modifiers:modifiers,def:def};// check ref for v-for and router-view
+	 */function makeTerminalNodeLinkFn(el,dirName,value,options,def,rawName,arg,modifiers){var parsed=parseDirective(value);var descriptor={name:dirName,arg:arg,expression:parsed.expression,filters:parsed.filters,raw:value,attr:rawName,modifiers:modifiers,def:def};// check ref for v-for, v-if and router-view
 	if(dirName==='for'||dirName==='router-view'){descriptor.ref=findRef(el);}var fn=function terminalNodeLinkFn(vm,el,host,scope,frag){if(descriptor.ref){defineReactive((scope||vm).$refs,descriptor.ref,null);}vm._bindDir(descriptor,el,host,scope,frag);};fn.terminal=true;return fn;}/**
 	 * Compile the directives on an element and return a linker.
 	 *
@@ -2332,7 +2338,7 @@
 	 * @param {Element} el
 	 * @param {Object} options
 	 * @return {Element|DocumentFragment}
-	 */function transcludeTemplate(el,options){var template=options.template;var frag=parseTemplate(template,true);if(frag){var replacer=frag.firstChild;var tag=replacer.tagName&&replacer.tagName.toLowerCase();if(options.replace){/* istanbul ignore if */if(el===document.body){process.env.NODE_ENV!=='production'&&warn('You are mounting an instance with a template to '+'<body>. This will replace <body> entirely. You '+'should probably use `replace: false` here.');}// there are many cases where the instance must
+	 */function transcludeTemplate(el,options){var template=options.template;var frag=parseTemplate(template,true);if(frag){var replacer=frag.firstChild;if(!replacer){return frag;}var tag=replacer.tagName&&replacer.tagName.toLowerCase();if(options.replace){/* istanbul ignore if */if(el===document.body){process.env.NODE_ENV!=='production'&&warn('You are mounting an instance with a template to '+'<body>. This will replace <body> entirely. You '+'should probably use `replace: false` here.');}// there are many cases where the instance must
 	// become a fragment instance: basically anything that
 	// can create more than 1 root nodes.
 	if(// multi-children template
@@ -2530,7 +2536,7 @@
 	 * e.g. on-click="a++"
 	 *
 	 * @return {Boolean}
-	 */Directive.prototype._checkStatement=function(){var expression=this.expression;if(expression&&this.acceptStatement&&!isSimplePath(expression)){var fn=parseExpression(expression).get;var scope=this._scope||this.vm;var handler=function handler(e){scope.$event=e;fn.call(scope,scope);scope.$event=null;};if(this.filters){handler=scope._applyFilters(handler,null,this.filters);}this.update(handler);return true;}};/**
+	 */Directive.prototype._checkStatement=function(){var expression=this.expression;if(expression&&this.acceptStatement&&!isSimplePath(expression)){var fn=parseExpression$1(expression).get;var scope=this._scope||this.vm;var handler=function handler(e){scope.$event=e;fn.call(scope,scope);scope.$event=null;};if(this.filters){handler=scope._applyFilters(handler,null,this.filters);}this.update(handler);return true;}};/**
 	 * Set the corresponding value with the setter.
 	 * This should only be used in two-way directives
 	 * e.g. v-model.
@@ -2670,14 +2676,14 @@
 	   * @param {String} exp
 	   * @param {Boolean} [asStatement]
 	   * @return {*}
-	   */Vue.prototype.$get=function(exp,asStatement){var res=parseExpression(exp);if(res){if(asStatement){var self=this;return function statementHandler(){self.$arguments=toArray(arguments);var result=res.get.call(self,self);self.$arguments=null;return result;};}else{try{return res.get.call(this,this);}catch(e){}}}};/**
+	   */Vue.prototype.$get=function(exp,asStatement){var res=parseExpression$1(exp);if(res){if(asStatement){var self=this;return function statementHandler(){self.$arguments=toArray(arguments);var result=res.get.call(self,self);self.$arguments=null;return result;};}else{try{return res.get.call(this,this);}catch(e){}}}};/**
 	   * Set the value from an expression on this vm.
 	   * The expression must be a valid left-hand
 	   * expression in an assignment.
 	   *
 	   * @param {String} exp
 	   * @param {*} val
-	   */Vue.prototype.$set=function(exp,val){var res=parseExpression(exp,true);if(res&&res.set){res.set.call(this,this,val);}};/**
+	   */Vue.prototype.$set=function(exp,val){var res=parseExpression$1(exp,true);if(res&&res.set){res.set.call(this,this,val);}};/**
 	   * Delete a property on the VM
 	   *
 	   * @param {String} key
@@ -2906,7 +2912,7 @@
 	// because why not
 	var n=delimiter==='in'?3:2;// extract and flatten keys
 	var keys=Array.prototype.concat.apply([],toArray(arguments,n));var res=[];var item,key,val,j;for(var i=0,l=arr.length;i<l;i++){item=arr[i];val=item&&item.$value||item;j=keys.length;if(j){while(j--){key=keys[j];if(key==='$key'&&contains(item.$key,search)||contains(getPath(val,key),search)){res.push(item);break;}}}else if(contains(item,search)){res.push(item);}}return res;}/**
-	 * Filter filter for arrays
+	 * Order filter for arrays
 	 *
 	 * @param {String|Array<String>|Function} ...sortKeys
 	 * @param {Number} [order]
@@ -2999,7 +3005,7 @@
 	   * @param {String} id
 	   * @param {*} definition
 	   */config._assetTypes.forEach(function(type){Vue[type]=function(id,definition){if(!definition){return this.options[type+'s'][id];}else{/* istanbul ignore if */if(process.env.NODE_ENV!=='production'){if(type==='component'&&(commonTagRE.test(id)||reservedTagRE.test(id))){warn('Do not use built-in or reserved HTML elements as component '+'id: '+id);}}if(type==='component'&&isPlainObject(definition)){if(!definition.name){definition.name=id;}definition=Vue.extend(definition);}this.options[type+'s'][id]=definition;return definition;}};});// expose internal transition API
-	extend(Vue.transition,transition);}installGlobalAPI(Vue);Vue.version='1.0.26';// devtools global hook
+	extend(Vue.transition,transition);}installGlobalAPI(Vue);Vue.version='1.0.28';// devtools global hook
 	/* istanbul ignore next */setTimeout(function(){if(config.devtools){if(devtools){devtools.emit('init',Vue);}else if(process.env.NODE_ENV!=='production'&&inBrowser&&/Chrome\/\d+/.test(window.navigator.userAgent)){console.log('Download the Vue Devtools for a better development experience:\n'+'https://github.com/vuejs/vue-devtools');}}},0);module.exports=Vue;
 
 /***/ },
@@ -3230,7 +3236,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-1837287e/button.vue"
+	  var id = "_v-4a39cbbc/button.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -3383,7 +3389,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-4a57bb51/buttonGroup.vue"
+	  var id = "_v-cd61225a/buttonGroup.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -3424,7 +3430,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-22e2ca66/dropButton.vue"
+	  var id = "_v-4bf16f0b/dropButton.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -3596,7 +3602,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-567fcc04/tag.vue"
+	  var id = "_v-3c1c6f80/tag.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -3692,7 +3698,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-055f5932/table.vue"
+	  var id = "_v-06fc5634/table.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -4387,7 +4393,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-7476ae6d/checkbox.vue"
+	  var id = "_v-fa6f1a22/checkbox.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -4462,7 +4468,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-1a268b48/card.vue"
+	  var id = "_v-771b151a/card.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -4534,7 +4540,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-7b6eb79a/cardGroup.vue"
+	  var id = "_v-f9895f96/cardGroup.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -4590,7 +4596,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-aa5f5abe/formItem.vue"
+	  var id = "_v-8dbbd1ba/formItem.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -4646,7 +4652,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-21ed869a/textfield.vue"
+	  var id = "_v-aa1fef1e/textfield.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -4862,7 +4868,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-5fd6b664/textarea.vue"
+	  var id = "_v-6e287ae6/textarea.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -4968,7 +4974,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-75fb6ee4/editable.vue"
+	  var id = "_v-5957e5e0/editable.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -5065,7 +5071,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-242d6360/toolTip.vue"
+	  var id = "_v-ac5fcbe4/toolTip.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -5161,7 +5167,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-3b48d205/rdTextSelect.vue"
+	  var id = "_v-eb7ef4f2/rdTextSelect.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -5255,7 +5261,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-2e5ebfa6/select.vue"
+	  var id = "_v-2ffbbca8/select.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -6415,7 +6421,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-bd02de7e/radio.vue"
+	  var id = "_v-25aceb7f/radio.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -6479,7 +6485,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-5fc604ee/radioGroup.vue"
+	  var id = "_v-20b8b0f0/radioGroup.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -6557,7 +6563,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-07d5ad68/cascader.vue"
+	  var id = "_v-162771ea/cascader.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -6692,7 +6698,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-7c5f65de/switch.vue"
+	  var id = "_v-7dfc62e0/switch.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -6756,7 +6762,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-59fcedea/slider.vue"
+	  var id = "_v-56c2f3e6/slider.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -6980,7 +6986,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-4462ab86/datePicker.vue"
+	  var id = "_v-05555788/datePicker.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -7357,7 +7363,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {'use strict';var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj;};//! moment.js
-	//! version : 2.15.2
+	//! version : 2.15.1
 	//! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 	//! license : MIT
 	//! momentjs.com
@@ -7410,7 +7416,7 @@
 	addUnitPriority('month',8);// PARSING
 	addRegexToken('M',match1to2);addRegexToken('MM',match1to2,match2);addRegexToken('MMM',function(isStrict,locale){return locale.monthsShortRegex(isStrict);});addRegexToken('MMMM',function(isStrict,locale){return locale.monthsRegex(isStrict);});addParseToken(['M','MM'],function(input,array){array[MONTH]=toInt(input)-1;});addParseToken(['MMM','MMMM'],function(input,array,config,token){var month=config._locale.monthsParse(input,token,config._strict);// if we didn't find a month name, mark the date as invalid.
 	if(month!=null){array[MONTH]=month;}else{getParsingFlags(config).invalidMonth=input;}});// LOCALES
-	var MONTHS_IN_FORMAT=/D[oD]?(\[[^\[\]]*\]|\s)+MMMM?/;var defaultLocaleMonths='January_February_March_April_May_June_July_August_September_October_November_December'.split('_');function localeMonths(m,format){if(!m){return this._months;}return isArray(this._months)?this._months[m.month()]:this._months[(this._months.isFormat||MONTHS_IN_FORMAT).test(format)?'format':'standalone'][m.month()];}var defaultLocaleMonthsShort='Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');function localeMonthsShort(m,format){if(!m){return this._monthsShort;}return isArray(this._monthsShort)?this._monthsShort[m.month()]:this._monthsShort[MONTHS_IN_FORMAT.test(format)?'format':'standalone'][m.month()];}function units_month__handleStrictParse(monthName,format,strict){var i,ii,mom,llc=monthName.toLocaleLowerCase();if(!this._monthsParse){// this is not used
+	var MONTHS_IN_FORMAT=/D[oD]?(\[[^\[\]]*\]|\s+)+MMMM?/;var defaultLocaleMonths='January_February_March_April_May_June_July_August_September_October_November_December'.split('_');function localeMonths(m,format){if(!m){return this._months;}return isArray(this._months)?this._months[m.month()]:this._months[(this._months.isFormat||MONTHS_IN_FORMAT).test(format)?'format':'standalone'][m.month()];}var defaultLocaleMonthsShort='Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');function localeMonthsShort(m,format){if(!m){return this._monthsShort;}return isArray(this._monthsShort)?this._monthsShort[m.month()]:this._monthsShort[MONTHS_IN_FORMAT.test(format)?'format':'standalone'][m.month()];}function units_month__handleStrictParse(monthName,format,strict){var i,ii,mom,llc=monthName.toLocaleLowerCase();if(!this._monthsParse){// this is not used
 	this._monthsParse=[];this._longMonthsParse=[];this._shortMonthsParse=[];for(i=0;i<12;++i){mom=create_utc__createUTC([2000,i]);this._shortMonthsParse[i]=this.monthsShort(mom,'').toLocaleLowerCase();this._longMonthsParse[i]=this.months(mom,'').toLocaleLowerCase();}}if(strict){if(format==='MMM'){ii=indexOf.call(this._shortMonthsParse,llc);return ii!==-1?ii:null;}else{ii=indexOf.call(this._longMonthsParse,llc);return ii!==-1?ii:null;}}else{if(format==='MMM'){ii=indexOf.call(this._shortMonthsParse,llc);if(ii!==-1){return ii;}ii=indexOf.call(this._longMonthsParse,llc);return ii!==-1?ii:null;}else{ii=indexOf.call(this._longMonthsParse,llc);if(ii!==-1){return ii;}ii=indexOf.call(this._shortMonthsParse,llc);return ii!==-1?ii:null;}}}function localeMonthsParse(monthName,format,strict){var i,mom,regex;if(this._monthsParseExact){return units_month__handleStrictParse.call(this,monthName,format,strict);}if(!this._monthsParse){this._monthsParse=[];this._longMonthsParse=[];this._shortMonthsParse=[];}// TODO: add sorting
 	// Sorting makes sure if one month (or abbr) is a prefix of another
 	// see sorting in computeMonthsParse
@@ -7723,7 +7729,7 @@
 	// FORMATTING
 	addFormatToken('X',0,0,'unix');addFormatToken('x',0,0,'valueOf');// PARSING
 	addRegexToken('x',matchSigned);addRegexToken('X',matchTimestamp);addParseToken('X',function(input,array,config){config._d=new Date(parseFloat(input,10)*1000);});addParseToken('x',function(input,array,config){config._d=new Date(toInt(input));});// Side effect imports
-	utils_hooks__hooks.version='2.15.2';setHookCallback(local__createLocal);utils_hooks__hooks.fn=momentPrototype;utils_hooks__hooks.min=min;utils_hooks__hooks.max=max;utils_hooks__hooks.now=now;utils_hooks__hooks.utc=create_utc__createUTC;utils_hooks__hooks.unix=moment__createUnix;utils_hooks__hooks.months=lists__listMonths;utils_hooks__hooks.isDate=isDate;utils_hooks__hooks.locale=locale_locales__getSetGlobalLocale;utils_hooks__hooks.invalid=valid__createInvalid;utils_hooks__hooks.duration=create__createDuration;utils_hooks__hooks.isMoment=isMoment;utils_hooks__hooks.weekdays=lists__listWeekdays;utils_hooks__hooks.parseZone=moment__createInZone;utils_hooks__hooks.localeData=locale_locales__getLocale;utils_hooks__hooks.isDuration=isDuration;utils_hooks__hooks.monthsShort=lists__listMonthsShort;utils_hooks__hooks.weekdaysMin=lists__listWeekdaysMin;utils_hooks__hooks.defineLocale=defineLocale;utils_hooks__hooks.updateLocale=updateLocale;utils_hooks__hooks.locales=locale_locales__listLocales;utils_hooks__hooks.weekdaysShort=lists__listWeekdaysShort;utils_hooks__hooks.normalizeUnits=normalizeUnits;utils_hooks__hooks.relativeTimeRounding=duration_humanize__getSetRelativeTimeRounding;utils_hooks__hooks.relativeTimeThreshold=duration_humanize__getSetRelativeTimeThreshold;utils_hooks__hooks.calendarFormat=getCalendarFormat;utils_hooks__hooks.prototype=momentPrototype;var _moment=utils_hooks__hooks;return _moment;});
+	utils_hooks__hooks.version='2.15.1';setHookCallback(local__createLocal);utils_hooks__hooks.fn=momentPrototype;utils_hooks__hooks.min=min;utils_hooks__hooks.max=max;utils_hooks__hooks.now=now;utils_hooks__hooks.utc=create_utc__createUTC;utils_hooks__hooks.unix=moment__createUnix;utils_hooks__hooks.months=lists__listMonths;utils_hooks__hooks.isDate=isDate;utils_hooks__hooks.locale=locale_locales__getSetGlobalLocale;utils_hooks__hooks.invalid=valid__createInvalid;utils_hooks__hooks.duration=create__createDuration;utils_hooks__hooks.isMoment=isMoment;utils_hooks__hooks.weekdays=lists__listWeekdays;utils_hooks__hooks.parseZone=moment__createInZone;utils_hooks__hooks.localeData=locale_locales__getLocale;utils_hooks__hooks.isDuration=isDuration;utils_hooks__hooks.monthsShort=lists__listMonthsShort;utils_hooks__hooks.weekdaysMin=lists__listWeekdaysMin;utils_hooks__hooks.defineLocale=defineLocale;utils_hooks__hooks.updateLocale=updateLocale;utils_hooks__hooks.locales=locale_locales__listLocales;utils_hooks__hooks.weekdaysShort=lists__listWeekdaysShort;utils_hooks__hooks.normalizeUnits=normalizeUnits;utils_hooks__hooks.relativeTimeRounding=duration_humanize__getSetRelativeTimeRounding;utils_hooks__hooks.relativeTimeThreshold=duration_humanize__getSetRelativeTimeThreshold;utils_hooks__hooks.calendarFormat=getCalendarFormat;utils_hooks__hooks.prototype=momentPrototype;var _moment=utils_hooks__hooks;return _moment;});
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(148)(module)))
 
 /***/ },
@@ -12697,7 +12703,7 @@
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	//! moment.js locale configuration
-	//! locale : Javanese [jv]
+	//! locale : Japanese [jv]
 	//! author : Rony Lantip : https://github.com/lantip
 	//! reference: http://jv.wikipedia.org/wiki/Basa_Jawa
 
@@ -13467,7 +13473,7 @@
 	        months: {
 	            format: 'sausio_vasario_kovo_balandžio_gegužės_birželio_liepos_rugpjūčio_rugsėjo_spalio_lapkričio_gruodžio'.split('_'),
 	            standalone: 'sausis_vasaris_kovas_balandis_gegužė_birželis_liepa_rugpjūtis_rugsėjis_spalis_lapkritis_gruodis'.split('_'),
-	            isFormat: /D[oD]?(\[[^\[\]]*\]|\s)+MMMM?|MMMM?(\[[^\[\]]*\]|\s)+D[oD]?/
+	            isFormat: /D[oD]?(\[[^\[\]]*\]|\s+)+MMMM?|MMMM?(\[[^\[\]]*\]|\s+)+D[oD]?/
 	        },
 	        monthsShort: 'sau_vas_kov_bal_geg_bir_lie_rgp_rgs_spa_lap_grd'.split('_'),
 	        weekdays: {
@@ -17970,7 +17976,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-bf081836/timePicker.vue"
+	  var id = "_v-616e9fe7/timePicker.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -18187,7 +18193,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-17f34147/numberInput.vue"
+	  var id = "_v-75561585/numberInput.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -18266,7 +18272,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-f63526ee/alert.vue"
+	  var id = "_v-922fe072/alert.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -18340,7 +18346,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-9f5656b6/spin.vue"
+	  var id = "_v-9c1c5cb2/spin.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -18401,7 +18407,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-180b3ba4/timeline.vue"
+	  var id = "_v-4e0430b4/timeline.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -18469,7 +18475,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-293358e0/progress.vue"
+	  var id = "_v-a74e00dc/progress.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -18528,7 +18534,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-4cab6a80/progressCircle.vue"
+	  var id = "_v-29b98d02/progressCircle.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -18621,7 +18627,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-31709bfa/audio.vue"
+	  var id = "_v-194a5541/audio.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -19104,7 +19110,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-cd0f27b8/upload.vue"
+	  var id = "_v-b06b9eb4/upload.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -19215,7 +19221,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-76983ddc/modal.vue"
+	  var id = "_v-1292f760/modal.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -19317,7 +19323,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-84b289d4/notification.vue"
+	  var id = "_v-2d7f9618/notification.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -19403,7 +19409,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-48c53526/preview.vue"
+	  var id = "_v-d0f79daa/preview.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -19539,7 +19545,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-3a848642/loadingbar.vue"
+	  var id = "_v-ed078c78/loadingbar.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -19597,7 +19603,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-c632c946/breadcrumb.vue"
+	  var id = "_v-79f4bddf/breadcrumb.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -19676,7 +19682,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-db860118/pagination.vue"
+	  var id = "_v-6f4b21f6/pagination.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -21258,7 +21264,7 @@
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
-	  var id = "_v-a108b3b8/App.vue"
+	  var id = "_v-226ac162/App.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -21652,7 +21658,7 @@
 	exports.i(__webpack_require__(343), "");
 
 	// module
-	exports.push([module.id, "@charset \"utf-8\";\r\n\r\nbody{font-family: 'Microsoft YaHei', Arial, 'Times New Roman', SimHei;}\r\n.m-app-header{width: 100%;height: 48px;background: #67cdfb;color: #fff;}\r\n.m-app-footer{width: 100%;height: 48px;line-height: 48px;background: #67cdfb;color: #fff;font-size: 14px;text-align: center;}", ""]);
+	exports.push([module.id, "@charset \"utf-8\";\r\n\r\nbody{font-family: 'Microsoft YaHei', Arial, 'Times New Roman', SimHei;}\r\n.m-app-content{padding: 20px 54px 30px 54px;}\r\n.m-app-header{padding-left: 54px;width: 100%;height: 54px;line-height: 54px;background: #67cdfb;color: #fff;font-size: 20px;}\r\n.m-app-header span{font-size: 14px;font-style: italic;}\r\n.m-app-footer{position: fixed;bottom: 0;left: 0;width: 100%;height: 48px;line-height: 48px;background: #67cdfb;color: #fff;font-size: 14px;text-align: center;}", ""]);
 
 	// exports
 
