@@ -1,0 +1,6 @@
+@charset "utf-8";
+@import url(../common/css/reset.css);
+
+body{font-family: 'Microsoft YaHei', Arial, 'Times New Roman', SimHei;}
+.m-app-header{width: 100%;height: 48px;background: #67cdfb;color: #fff;}
+.m-app-footer{width: 100%;height: 48px;line-height: 48px;background: #67cdfb;color: #fff;font-size: 14px;text-align: center;}

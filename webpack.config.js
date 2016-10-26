@@ -19,7 +19,8 @@ module.exports = {
 	        { test: /\.html?$/, loader: 'html' },
 	        { test: /\.vue$/, loader: 'vue' },
 	        { test: /\.(woff(2)?|ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url" },
-	        { test: /\.(png|jpg|gif)$/ig, loader: 'url?limit=8192&name=img/[name]-[hash:16].[ext]'}
+	        { test: /\.(png|jpg|gif)$/ig, loader: 'url?limit=8192&name=img/[name]-[hash:16].[ext]'},
+	        { test: /\.json$/, loader: 'json'},
 	    ]
 	},
 	resolve: {
