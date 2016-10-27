@@ -21307,7 +21307,7 @@
 
 
 	// module
-	exports.push([module.id, "\n.w-input{width: 200px;}\n", ""]);
+	exports.push([module.id, "\n.f-float-left{float: left;}\n.f-clear{+zoom: 1;}\n.f-clear:before,\n.f-clear:after {clear: both;content: \".\";font-size: 0;display: block;height: 0;overflow: hidden;visibility: hidden;}\n\n.form-rows{height: 32px;line-height: 32px;font-size: 14px;}\n", ""]);
 
 	// exports
 
@@ -21605,15 +21605,37 @@
 		data: function data() {
 			return {
 				user: {
-					value: 'hehe',
+					value: '',
 					placeHolder: '请输入运单单号',
 					state: 'default'
+				},
+				selectdata: {
+					multiple: false,
+					search: true,
+					key: 'selectProvince',
+					value: {},
+					options: [{
+						selected: true,
+						disabled: false,
+						value: '成都',
+						id: 1
+					}, {
+						selected: false,
+						disabled: false,
+						value: '北京',
+						id: 2
+					}, {
+						selected: false,
+						disabled: false,
+						value: '深圳',
+						id: 3
+					}]
 				}
 			};
 		},
 
 		components: {
-			rdText: _radonUi.rdText, rdButton: _radonUi.rdButton
+			rdText: _radonUi.rdText, rdButton: _radonUi.rdButton, rdSelect: _radonUi.rdSelect
 		}
 	};
 
@@ -21621,7 +21643,7 @@
 /* 340 */
 /***/ function(module, exports) {
 
-	module.exports = "\n\n\n\n\n<div class=\"w-input\">\n\t<rd-text :textfield=\"user\"></rd-text>\n</div>\n<rd-button type=\"primary\">提交</rd-button>\n";
+	module.exports = "\n\n\n\n\n\n\n\n\n\n<section class=\"form-rows f-clear\">\n\t<div class=\"f-float-left\">\n\t\t<p>快递公司：</p>\n\t</div>\n\t<div class=\"f-float-left\">\n\t\t<rd-select :select=\"selectdata\"></rd-select>\n\t</div>\n</section>\n\n<section class=\"form-rows f-clear\">\n\t<div class=\"f-float-left\">\n\t\t<p>快递单号：</p>\n\t</div>\n\t<div class=\"f-float-left\">\n\t\t<rd-text :textfield=\"user\"></rd-text>\n\t</div>\n\t<div class=\"f-float-left\">\n\t\t<rd-button type=\"primary\">提交</rd-button>\n\t</div>\n</section>\n";
 
 /***/ },
 /* 341 */
