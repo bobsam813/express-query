@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "electron .",
     "build": "webpack --color --progress",
-    "watch": "webpack --progress --colors --watch",
+    "watch": "webpack --watch",
     "start": "npm run watch | npm run dev"
   },
   "repository": {
@@ -28,6 +28,7 @@
     "babel-preset-stage-2": "^6.18.0",
     "css-loader": "^0.25.0",
     "electron": "^1.4.4",
+    "vue": "^1.0.26",
     "file-loader": "^0.9.0",
     "html-loader": "^0.4.3",
     "radon-ui": "^0.2.5",
