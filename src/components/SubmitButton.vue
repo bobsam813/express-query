@@ -6,12 +6,17 @@
 	import {rdButton} from 'radon-ui';
 
 	export default {
+		events: {
+			'hello-broadcast' () {
+				console.log('button')
+			}
+		},
 		components: {
 			rdButton
 		},
 		methods: {
 			query() {
-				console.log('query')
+				this.$dispatch('getCompany')
 			}
 		}
 	}

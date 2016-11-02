@@ -41,6 +41,14 @@
 	export default {
 	  	components: {
 	    	CompanySelect, CodeInput, SubmitButton
+	  	},
+	  	events: {
+	  		getCompany(data) {
+	  			this.$broadcast('getCompany', data);
+	  		},
+	  		getCode(data){
+	  			this.$broadcast('getCode', data);
+	  		}
 	  	}
 	}
 </script>

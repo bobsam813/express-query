@@ -40,6 +40,11 @@
 		},
 		components: {
 			rdSelect
+		},
+		events: {
+			getCompany () {
+				console.log('select')
+			}
 		}
 	}
 </script>
