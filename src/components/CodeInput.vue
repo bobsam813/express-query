@@ -19,9 +19,7 @@
 			rdText
 		},
 		events: {
-			'hello-broadcast' () {
-				console.log('input')
-			}
+			
 		}
 	}
 </script>

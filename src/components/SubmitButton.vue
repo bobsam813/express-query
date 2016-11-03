@@ -7,16 +7,15 @@
 
 	export default {
 		events: {
-			'hello-broadcast' () {
-				console.log('button')
-			}
+			
 		},
 		components: {
 			rdButton
 		},
 		methods: {
 			query() {
-				this.$dispatch('getCompany')
+				
+				console.log(this.$parent);
 			}
 		}
 	}

@@ -16,7 +16,7 @@
 			<p>快递公司：</p>
 		</div>
 		<div class="form-item f-float-left">
-			<company-select></company-select>
+			<company-select v-ref:select></company-select>
 		</div>
 	</section>
 
@@ -25,10 +25,10 @@
 			<p>快递单号：</p>
 		</div>
 		<div class="form-item f-float-left">
-			<code-input></code-input>
+			<code-input v-ref:input></code-input>
 		</div>
 		<div class="form-button f-float-left">
-			<submit-button></submit-button>
+			<submit-button v-ref:button></submit-button>
 		</div>
 	</section>
 </template>
@@ -43,11 +43,15 @@
 	    	CompanySelect, CodeInput, SubmitButton
 	  	},
 	  	events: {
-	  		getCompany(data) {
-	  			this.$broadcast('getCompany', data);
+	  		'getCompany-dispatch'(data) {
+	  			this.$broadcast('getCompany-broadcast', data);
 	  		},
-	  		getCode(data){
-	  			this.$broadcast('getCode', data);
+	  		'getCode-dispatch'(data){
+	  			this.$broadcast('getCode-broadcast', data);
+	  		},
+	  		getCompany(data) {
+	  			let a = this.$refs.select.selectdata.value.value;
+	  			console.log(a)
 	  		}
 	  	}
 	}

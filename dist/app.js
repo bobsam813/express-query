@@ -21618,11 +21618,15 @@
 	    CompanySelect: _CompanySelect2.default, CodeInput: _CodeInput2.default, SubmitButton: _SubmitButton2.default
 	  },
 	  events: {
-	    getCompany: function getCompany(data) {
-	      this.$broadcast('getCompany', data);
+	    'getCompany-dispatch': function getCompanyDispatch(data) {
+	      this.$broadcast('getCompany-broadcast', data);
 	    },
-	    getCode: function getCode(data) {
-	      this.$broadcast('getCode', data);
+	    'getCode-dispatch': function getCodeDispatch(data) {
+	      this.$broadcast('getCode-broadcast', data);
+	    },
+	    getCompany: function getCompany(data) {
+	      var a = this.$refs.select.selectdata.value.value;
+	      console.log(a);
 	    }
 	  }
 	};
@@ -21675,6 +21679,7 @@
 	var _radonUi = __webpack_require__(9);
 
 	exports.default = {
+		pros: [],
 		data: function data() {
 			return {
 				selectdata: {
@@ -21703,17 +21708,14 @@
 		},
 
 		methods: {
-			changeAction: function changeAction(select, value) {
-				console.log(value.value);
-				console.log(value.id);
-			}
+			changeAction: function changeAction(select, value) {}
 		},
 		components: {
 			rdSelect: _radonUi.rdSelect
 		},
 		events: {
-			getCompany: function getCompany() {
-				console.log('select');
+			'getCompany-broadcast': function getCompanyBroadcast(a) {
+				console.log(a);
 			}
 		}
 	};
@@ -21785,11 +21787,7 @@
 		components: {
 			rdText: _radonUi.rdText
 		},
-		events: {
-			'hello-broadcast': function helloBroadcast() {
-				console.log('input');
-			}
-		}
+		events: {}
 	};
 
 /***/ },
@@ -21846,17 +21844,14 @@
 	var _radonUi = __webpack_require__(9);
 
 	exports.default = {
-		events: {
-			'hello-broadcast': function helloBroadcast() {
-				console.log('button');
-			}
-		},
+		events: {},
 		components: {
 			rdButton: _radonUi.rdButton
 		},
 		methods: {
 			query: function query() {
-				this.$dispatch('getCompany');
+
+				console.log(this.$parent);
 			}
 		}
 	};
@@ -21871,7 +21866,7 @@
 /* 349 */
 /***/ function(module, exports) {
 
-	module.exports = "\n\n\n\n\n\n\n\n\n\n\n\n\n<section class=\"form-rows row-1 f-clear\">\n\t<div class=\"form-name f-float-left\">\n\t\t<p>快递公司：</p>\n\t</div>\n\t<div class=\"form-item f-float-left\">\n\t\t<company-select></company-select>\n\t</div>\n</section>\n\n<section class=\"form-rows f-clear\">\n\t<div class=\"form-name f-float-left\">\n\t\t<p>快递单号：</p>\n\t</div>\n\t<div class=\"form-item f-float-left\">\n\t\t<code-input></code-input>\n\t</div>\n\t<div class=\"form-button f-float-left\">\n\t\t<submit-button></submit-button>\n\t</div>\n</section>\n";
+	module.exports = "\n\n\n\n\n\n\n\n\n\n\n\n\n<section class=\"form-rows row-1 f-clear\">\n\t<div class=\"form-name f-float-left\">\n\t\t<p>快递公司：</p>\n\t</div>\n\t<div class=\"form-item f-float-left\">\n\t\t<company-select v-ref:select></company-select>\n\t</div>\n</section>\n\n<section class=\"form-rows f-clear\">\n\t<div class=\"form-name f-float-left\">\n\t\t<p>快递单号：</p>\n\t</div>\n\t<div class=\"form-item f-float-left\">\n\t\t<code-input v-ref:input></code-input>\n\t</div>\n\t<div class=\"form-button f-float-left\">\n\t\t<submit-button v-ref:button></submit-button>\n\t</div>\n</section>\n";
 
 /***/ },
 /* 350 */

@@ -6,6 +6,7 @@
 	import {rdSelect} from 'radon-ui';
 
 	export default {
+		pros: [],
 		data() {
 			return {
 				selectdata: {
@@ -34,16 +35,15 @@
 		},
 		methods: {
 			changeAction(select, value) {
-				console.log(value.value)
-				console.log(value.id)
+				
 			}
 		},
 		components: {
 			rdSelect
 		},
 		events: {
-			getCompany () {
-				console.log('select')
+			'getCompany-broadcast' (a) {
+				console.log(a)
 			}
 		}
 	}
